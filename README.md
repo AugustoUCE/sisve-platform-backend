@@ -7,38 +7,66 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 ##  Ejecutar service desde la raíz
 
 ./gradlew :nombre_proyecto:quarkusDev
-## Flujo de trabajo (Gitflow)
+## Flujo de Trabajo (Gitflow)
 
-Este proyecto sigue el modelo de ramas Gitflow:
+Este proyecto sigue el modelo de ramas Gitflow para mantener un historial ordenado y visual:
 
-- **main**: rama de producción. Solo contiene código estable y probado, listo para producción. Cada fusión a esta rama debería ir acompañada de un tag de versión (ej. v1.0).
-- **quality**: rama de QA/pruebas. Aquí se valida la funcionalidad y se detectan errores antes de pasar a producción.
-- **development**: rama de desarrollo. Aquí se programan y prueban los cambios nuevos antes de enviarlos a `quality`.
+- **main**: Rama de producción. Solo contiene código estable y probado. Cada fusión aquí lleva un tag de versión (ej. v1.0).
+- **quality**: Rama de QA/pruebas. Aquí se valida la funcionalidad antes de pasar a producción.
+- **development**: Rama de desarrollo base. De aquí nacen todas las tareas nuevas.
+- **feature/**: Ramas temporales para tareas o características específicas. **Nunca se trabaja directo en development, quality o main.**
 
-### Flujo de trabajo Ejemplo
+### 🛠️ Flujo de Trabajo para una Nueva Tarea
 
-1. Los cambios nuevos se desarrollan en la rama `development`.
-2. Una vez listos, `development` se fusiona en `quality` para pruebas de QA:
+Cuando vayas a programar algo nuevo (una función, un fix, una documentación), sigue estos pasos para que el gráfico de Git se ramifique correctamente:
+
+#### 1. Crear la rama de la tarea desde development
+Asegúrate de estar en `development` actualizado y crea tu rama de tarea:
 ```bash
-   git checkout quality
-   git pull origin quality
-   git merge development
-   git push origin quality
-```
-3. Cuando `quality` pasa las pruebas y está lista para producción, se fusiona en `main`:
-```bash
-   git checkout main
-   git pull origin main
-   git merge quality
-   git push origin main
-```
-4. Se etiqueta la versión liberada:
-```bash
-   git tag -a v1.0 -m "Release v1.0"
-   git push origin v1.0
+git checkout development
+git pull origin development
+git checkout -b feature/nombre-de-tu-tarea
 ```
 
-### Reglas
-- Nunca trabajar directamente sobre `main`.
-- Todo cambio nuevo se desarrolla primero en `development` antes de llegar a `quality`.
-- `main` solo recibe código ya validado desde `quality`.
+#### 2. Desarrollar y hacer commits
+Trabaja en tu código y guarda tus avances de forma normal:
+```bash
+git add -A
+git commit -m "feat: descripción de lo que hiciste"
+```
+
+#### 3. Fusionar la tarea de vuelta a development (Genera la curva visual)
+Cuando termines la tarea, regresa a `development` y fusiónala. **Es obligatorio usar `--no-ff`** para que Git Graph dibuje el círculo de unión:
+```bash
+git checkout development
+git merge feature/nombre-de-tu-tarea --no-ff
+git push origin development
+```
+*Una vez fusionada, puedes borrar tu rama local si deseas:* `git branch -d feature/nombre-de-tu-tarea`
+
+### 🚀 Pasar cambios a Calidad (Quality) y Producción (Main)
+
+1. **A Quality para pruebas:** Cuando los cambios en `development` estén listos para ser probados por QA, se fusionan en `quality` (también con `--no-ff`):
+```bash
+git checkout quality
+git pull origin quality
+git merge development --no-ff
+git push origin quality
+```
+
+2. **A Main para producción:** Cuando `quality` pasa las pruebas, se sube a `main` y se etiqueta:
+```bash
+git checkout main
+git pull origin main
+git merge quality --no-ff
+git push origin main
+
+# Etiquetar la versión
+git tag -a v1.0 -m "Release v1.0"
+git push origin v1.0
+```
+
+### 🚫 Reglas Estrictas
+- **Prohibido** hacer commits directo sobre `main`, `quality` o `development`.
+- Toda línea de código nueva debe nacer en una rama `feature/`.
+- El parámetro `--no-ff` es obligatorio en todos los `git merge` para no perder la visualización del gráfico.
