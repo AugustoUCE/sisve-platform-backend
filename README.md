@@ -36,7 +36,7 @@ git commit -m "feat: descripción de lo que hiciste"
 ```
 
 #### 3. Fusionar la tarea de vuelta a development (Genera la curva visual)
-Cuando termines la tarea, regresa a `development` y fusiónala. **Es obligatorio usar `--no-ff`** para que Git Graph dibuje el círculo de unión:
+Cuando termines la tarea, regresa a `development` y fusiónala. **Es obligatorio USAR `--no-ff`** para que Git Graph dibuje el círculo de unión:
 ```bash
 git checkout development
 git merge feature/nombre-de-tu-tarea --no-ff
