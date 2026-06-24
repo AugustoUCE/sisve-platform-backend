@@ -1,54 +1,34 @@
-# audit-service
+# Audit Service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Microservicio de auditoría. Registro inmutable de eventos relevantes del sistema.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**Esquema:** `audit_schema` | **Puerto:** `8084`
 
-## Running the application in dev mode
+## Entidad a crear
 
-You can run your application in dev mode that enables live coding using:
+### Auditoria
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idAuditoria | Long | PK, autogenerado |
+| tipoEvento | String | obligatorio |
+| descripcion | String (TEXT) | opcional |
+| fechaEvento | LocalDateTime | obligatorio |
+| ipOrigen | String | opcional |
+| servicioOrigen | String | obligatorio |
 
-```shell script
-./gradlew quarkusDev
-```
+**Operaciones:** registrarEvento, listarPorServicio.
+*(Nunca actualizar ni eliminar — inmutabilidad del log)*
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Pasos de implementación
+1. Script Flyway `V1__create_audit_schema.sql`
+2. Entidad Panache (Auditoria)
+3. Repositorio
+4. DTO: EventoAuditoriaRequest
+5. AuditService (solo inserta)
+6. AuditResource (endpoint interno consumido por los otros 3)
 
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./gradlew build
-```
-
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/audit-service-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+## Endpoints
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | /auditoria/eventos | Registra un nuevo evento |
+| GET | /auditoria/eventos?servicio=X&desde=Y | Consulta de eventos |

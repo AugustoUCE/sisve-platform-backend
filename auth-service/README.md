@@ -1,54 +1,49 @@
-# auth-service
+# Auth Service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Microservicio de autenticación. Responsable de validar la identidad del votante, generar tokens JWT y administrar sesiones.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**Esquema:** `auth_schema` | **Puerto:** `8081`
 
-## Running the application in dev mode
+## Entidades a crear
 
-You can run your application in dev mode that enables live coding using:
+### Votante
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idVotante | Long | PK, autogenerado |
+| cedula | String | único, obligatorio |
+| correoInstitucional | String | único, obligatorio |
+| nombres | String | obligatorio |
+| apellidos | String | obligatorio |
+| estado | Boolean | obligatorio, default true |
 
-```shell script
-./gradlew quarkusDev
-```
+**Operaciones:** buscarPorCedulaYCorreo, actualizarEstado.
+*(No requiere crear individual ni eliminar — carga masiva desde padrón)*
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+### Sesion
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idSesion | Long | PK, autogenerado |
+| idVotante | Long | obligatorio |
+| tokenHash | String | obligatorio |
+| fechaCreacion | LocalDateTime | obligatorio |
+| fechaExpiracion | LocalDateTime | obligatorio |
+| estado | Boolean | obligatorio, default true |
 
-## Packaging and running the application
+**Operaciones:** crear, invalidar.
+*(No requiere eliminar ni listar todas)*
 
-The application can be packaged using:
+## Pasos de implementación
+1. Script Flyway `V1__create_auth_schema.sql`
+2. Entidades Panache (Votante, Sesion)
+3. Repositorios
+4. DTOs: LoginRequest, LoginResponse
+5. JwtTokenGenerator (firma de tokens)
+6. AuthService (lógica de negocio)
+7. AuthResource (endpoints REST)
 
-```shell script
-./gradlew build
-```
-
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/auth-service-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+## Endpoints
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | /auth/login | Autentica votante y devuelve token JWT |
+| POST | /auth/logout | Invalida la sesión activa |
+| GET | /auth/validate | Valida si un token sigue activo |

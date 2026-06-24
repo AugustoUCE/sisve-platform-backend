@@ -1,54 +1,39 @@
-# vote-service
+# Vote Service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Microservicio de votación. Emisión, cifrado e integridad del voto.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**Esquema:** `vote_schema` | **Puerto:** `8083`
 
-## Running the application in dev mode
+## Entidad a crear
 
-You can run your application in dev mode that enables live coding using:
+### Voto
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idVoto | Long | PK, autogenerado |
+| idEleccion | Long | obligatorio |
+| votoCifrado | String (TEXT) | obligatorio |
+| hashAnterior | String | obligatorio |
+| hashActual | String | obligatorio, único |
+| fechaRegistro | LocalDateTime | obligatorio |
 
-```shell script
-./gradlew quarkusDev
-```
+**Operaciones:** crear, obtenerUltimoHash, verificarCadenaIntegridad.
+*(Nunca actualizar ni eliminar — inmutabilidad del voto)*
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Pasos de implementación
+1. Script Flyway `V1__create_vote_schema.sql`
+2. Entidad Panache (Voto)
+3. Repositorio
+4. AesEncryptionUtil (cifrado/descifrado AES-256)
+5. Sha256ChainUtil (cálculo hash encadenado)
+6. VoteService (valida token con Auth, valida habilitación con Election, cifra, encadena, guarda, marca participación)
+7. VoteResource
 
-## Packaging and running the application
+## Lógica del hash encadenado
 
-The application can be packaged using:
+Primer voto de cada elección usa hash semilla fijo como hash_anterior.
 
-```shell script
-./gradlew build
-```
-
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/vote-service-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+## Endpoints
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | /votos | Registra un voto cifrado (requiere JWT válido) |
+| GET | /votos/eleccion/{idEleccion}/verificar-integridad | Verifica la cadena de hashes |

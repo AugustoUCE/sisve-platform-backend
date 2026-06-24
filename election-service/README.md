@@ -1,54 +1,68 @@
-# election-service
+# Election Service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Microservicio de gestión electoral. Carga del padrón, configuración de elecciones, cargos y candidatos.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**Esquema:** `election_schema` | **Puerto:** `8082`
 
-## Running the application in dev mode
+## Entidades a crear
 
-You can run your application in dev mode that enables live coding using:
+### Eleccion
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idEleccion | Long | PK, autogenerado |
+| nombre | String | obligatorio |
+| descripcion | String | opcional |
+| fechaInicio | LocalDateTime | obligatorio |
+| fechaFin | LocalDateTime | obligatorio |
+| estado | String | obligatorio, default "planificado" |
 
-```shell script
-./gradlew quarkusDev
-```
+**Operaciones:** crear, listarActivas, actualizarEstado.
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+### Cargo
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idCargo | Long | PK, autogenerado |
+| idEleccion | Long | obligatorio |
+| nombre | String | obligatorio |
 
-## Packaging and running the application
+**Operaciones:** crear, listarPorEleccion.
 
-The application can be packaged using:
+### Candidato
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idCandidato | Long | PK, autogenerado |
+| idCargo | Long | obligatorio |
+| nombres | String | obligatorio |
+| apellidos | String | obligatorio |
+| lista | String | opcional |
+| estado | Boolean | obligatorio, default true |
 
-```shell script
-./gradlew build
-```
+**Operaciones:** crear, listarPorCargo, deshabilitar.
 
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
+### VotanteEleccion
+| Campo | Tipo | Restricción |
+|---|---|---|
+| idVotante | Long | PK compuesta |
+| idEleccion | Long | PK compuesta |
+| haVotado | Boolean | obligatorio, default false |
+| fechaParticipacion | LocalDateTime | opcional |
 
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
+**Operaciones:** registrarHabilitacion, marcarVotado, verificarHabilitado.
 
-If you want to build an _über-jar_, execute the following command:
+## Pasos de implementación
+1. Script Flyway `V1__create_election_schema.sql`
+2. Entidades Panache (4)
+3. Repositorios
+4. DTOs: EleccionRequest, CandidatoRequest, PadronCargaRequest
+5. ElectionService
+6. EleccionResource, CandidatoResource
 
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/election-service-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+## Endpoints
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | /elecciones | Crea una nueva elección |
+| POST | /elecciones/{id}/cargos | Registra un cargo |
+| POST | /cargos/{id}/candidatos | Registra un candidato |
+| GET | /elecciones/activas | Lista elecciones activas |
+| GET | /elecciones/{id}/habilitado/{idVotante} | Verifica habilitación |
+| PUT | /elecciones/{id}/marcar-votado/{idVotante} | Marca participación |
