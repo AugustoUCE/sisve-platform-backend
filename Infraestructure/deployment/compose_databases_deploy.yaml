@@ -1,0 +1,127 @@
+services:
+  # =========================================================
+  # AUTH SERVICE - POSTGRESQL
+  # =========================================================
+  auth-db:
+    image: ${POSTGRES_IMAGE}
+    container_name: sisve-auth-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_USER: ${AUTH_DB_USERNAME}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+
+    ports:
+      - "${AUTH_DB_HOST_PORT}:5432"
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+    networks:
+      - sisve-network
+
+
+  # =========================================================
+  # AUTH DATABASE - PROMETHEUS EXPORTER
+  # =========================================================
+  auth-postgres-exporter:
+    image: ${POSTGRES_EXPORTER_IMAGE}
+    container_name: sisve-auth-postgres-exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${AUTH_DB_USERNAME}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}?sslmode=disable"
+
+    ports:
+      - "${AUTH_POSTGRES_EXPORTER_HOST_PORT}:9187"
+
+    depends_on:
+      auth-db:
+        condition: service_healthy
+
+    networks:
+      - sisve-network
+
+
+  # =========================================================
+  # AUDIT SERVICE - POSTGRESQL
+  # =========================================================
+  audit-db:
+    image: ${POSTGRES_IMAGE}
+    container_name: sisve-audit-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${AUDIT_DB_NAME}
+      POSTGRES_USER: ${AUDIT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${AUDIT_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    volumes:
+      - audit_pgdata:/var/lib/postgresql/data
+
+    ports:
+      - "${AUDIT_DB_HOST_PORT}:5432"
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+    networks:
+      - sisve-network
+
+
+  # =========================================================
+  # AUDIT DATABASE - PROMETHEUS EXPORTER
+  # =========================================================
+  audit-postgres-exporter:
+    image: ${POSTGRES_EXPORTER_IMAGE}
+    container_name: sisve-audit-postgres-exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${AUDIT_DB_USERNAME}:${AUDIT_DB_PASSWORD}@audit-db:5432/${AUDIT_DB_NAME}?sslmode=disable"
+
+    ports:
+      - "${AUDIT_POSTGRES_EXPORTER_HOST_PORT}:9187"
+
+    depends_on:
+      audit-db:
+        condition: service_healthy
+
+    networks:
+      - sisve-network
+
+
+volumes:
+  auth_pgdata:
+    name: ${AUTH_DB_VOLUME_NAME}
+
+  audit_pgdata:
+    name: ${AUDIT_DB_VOLUME_NAME}
+
+
+networks:
+  sisve-network:
+    external: true
+    name: ${SISVE_NETWORK_NAME}
