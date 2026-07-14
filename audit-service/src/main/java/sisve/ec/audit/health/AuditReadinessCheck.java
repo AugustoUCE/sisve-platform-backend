@@ -21,7 +21,10 @@ public class AuditReadinessCheck implements HealthCheck {
             auditoriaRepository.count();
             return HealthCheckResponse.up("audit-service-ready");
         } catch (Exception exception) {
-            return HealthCheckResponse.down("audit-service-ready").withData("error", exception.getMessage()).build();
+            return HealthCheckResponse.named("audit-service-ready")
+                    .down()
+                    .withData("error", exception.getMessage())
+                    .build();
         }
     }
 }

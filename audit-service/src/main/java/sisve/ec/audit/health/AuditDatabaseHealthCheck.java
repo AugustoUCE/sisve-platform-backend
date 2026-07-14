@@ -29,7 +29,10 @@ public class AuditDatabaseHealthCheck implements HealthCheck {
             }
             return HealthCheckResponse.down("audit-service-database");
         } catch (Exception exception) {
-            return HealthCheckResponse.down("audit-service-database").withData("error", exception.getMessage()).build();
+            return HealthCheckResponse.named("audit-service-database")
+                    .down()
+                    .withData("error", exception.getMessage())
+                    .build();
         }
     }
 }
