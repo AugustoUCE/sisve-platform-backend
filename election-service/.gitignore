@@ -33,7 +33,7 @@ nb-configuration.xml
 *.rej
 
 # Local environment
-.env
+plantilla.txt
 credentialDeploy.env
 
 # Plugin directory
