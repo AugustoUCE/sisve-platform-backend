@@ -1,0 +1,35 @@
+name: sisve-audit-local
+
+services:
+  audit-db:
+    image: postgres:17.7-alpine3.23
+    container_name: sisve-audit-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: sisve_audit
+      POSTGRES_USER: audit_app_user
+      POSTGRES_PASSWORD: audit_password_local_2026
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    ports:
+      - "54322:5432"
+
+    volumes:
+      - audit_pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U audit_app_user -d sisve_audit"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+
+volumes:
+  audit_pgdata:
+    name: sisve-audit-postgres-data

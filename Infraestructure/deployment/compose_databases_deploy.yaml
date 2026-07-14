@@ -1,6 +1,7 @@
 services:
+
   # =========================================================
-  # AUTH SERVICE - POSTGRESQL
+  # AUTH DATABASE
   # =========================================================
   auth-db:
     image: ${POSTGRES_IMAGE}
@@ -13,11 +14,11 @@ services:
       POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
 
-    volumes:
-      - auth_pgdata:/var/lib/postgresql/data
-
     ports:
       - "${AUTH_DB_HOST_PORT}:5432"
+
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
 
     healthcheck:
       test:
@@ -34,9 +35,6 @@ services:
       - sisve-network
 
 
-  # =========================================================
-  # AUTH DATABASE - PROMETHEUS EXPORTER
-  # =========================================================
   auth-postgres-exporter:
     image: ${POSTGRES_EXPORTER_IMAGE}
     container_name: sisve-auth-postgres-exporter
@@ -46,7 +44,7 @@ services:
       DATA_SOURCE_NAME: "postgresql://${AUTH_DB_USERNAME}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}?sslmode=disable"
 
     ports:
-      - "${AUTH_POSTGRES_EXPORTER_HOST_PORT}:9187"
+      - "${AUTH_EXPORTER_HOST_PORT}:9187"
 
     depends_on:
       auth-db:
@@ -57,7 +55,7 @@ services:
 
 
   # =========================================================
-  # AUDIT SERVICE - POSTGRESQL
+  # AUDIT DATABASE
   # =========================================================
   audit-db:
     image: ${POSTGRES_IMAGE}
@@ -70,11 +68,11 @@ services:
       POSTGRES_PASSWORD: ${AUDIT_DB_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
 
-    volumes:
-      - audit_pgdata:/var/lib/postgresql/data
-
     ports:
       - "${AUDIT_DB_HOST_PORT}:5432"
+
+    volumes:
+      - audit_pgdata:/var/lib/postgresql/data
 
     healthcheck:
       test:
@@ -91,9 +89,6 @@ services:
       - sisve-network
 
 
-  # =========================================================
-  # AUDIT DATABASE - PROMETHEUS EXPORTER
-  # =========================================================
   audit-postgres-exporter:
     image: ${POSTGRES_EXPORTER_IMAGE}
     container_name: sisve-audit-postgres-exporter
@@ -103,10 +98,118 @@ services:
       DATA_SOURCE_NAME: "postgresql://${AUDIT_DB_USERNAME}:${AUDIT_DB_PASSWORD}@audit-db:5432/${AUDIT_DB_NAME}?sslmode=disable"
 
     ports:
-      - "${AUDIT_POSTGRES_EXPORTER_HOST_PORT}:9187"
+      - "${AUDIT_EXPORTER_HOST_PORT}:9187"
 
     depends_on:
       audit-db:
+        condition: service_healthy
+
+    networks:
+      - sisve-network
+
+
+  # =========================================================
+  # ELECTION DATABASE
+  # =========================================================
+  election-db:
+    image: ${POSTGRES_IMAGE}
+    container_name: sisve-election-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${ELECTION_DB_NAME}
+      POSTGRES_USER: ${ELECTION_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ELECTION_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    ports:
+      - "${ELECTION_DB_HOST_PORT}:5432"
+
+    volumes:
+      - election_pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+    networks:
+      - sisve-network
+
+
+  election-postgres-exporter:
+    image: ${POSTGRES_EXPORTER_IMAGE}
+    container_name: sisve-election-postgres-exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${ELECTION_DB_USERNAME}:${ELECTION_DB_PASSWORD}@election-db:5432/${ELECTION_DB_NAME}?sslmode=disable"
+
+    ports:
+      - "${ELECTION_EXPORTER_HOST_PORT}:9187"
+
+    depends_on:
+      election-db:
+        condition: service_healthy
+
+    networks:
+      - sisve-network
+
+
+  # =========================================================
+  # VOTE DATABASE
+  # =========================================================
+  vote-db:
+    image: ${POSTGRES_IMAGE}
+    container_name: sisve-vote-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${VOTE_DB_NAME}
+      POSTGRES_USER: ${VOTE_DB_USERNAME}
+      POSTGRES_PASSWORD: ${VOTE_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    ports:
+      - "${VOTE_DB_HOST_PORT}:5432"
+
+    volumes:
+      - vote_pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+    networks:
+      - sisve-network
+
+
+  vote-postgres-exporter:
+    image: ${POSTGRES_EXPORTER_IMAGE}
+    container_name: sisve-vote-postgres-exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${VOTE_DB_USERNAME}:${VOTE_DB_PASSWORD}@vote-db:5432/${VOTE_DB_NAME}?sslmode=disable"
+
+    ports:
+      - "${VOTE_EXPORTER_HOST_PORT}:9187"
+
+    depends_on:
+      vote-db:
         condition: service_healthy
 
     networks:
@@ -119,6 +222,12 @@ volumes:
 
   audit_pgdata:
     name: ${AUDIT_DB_VOLUME_NAME}
+
+  election_pgdata:
+    name: ${ELECTION_DB_VOLUME_NAME}
+
+  vote_pgdata:
+    name: ${VOTE_DB_VOLUME_NAME}
 
 
 networks:
