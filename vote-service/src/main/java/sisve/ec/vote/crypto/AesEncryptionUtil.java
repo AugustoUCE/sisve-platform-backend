@@ -1,4 +1,4 @@
-package com.uce.sisve.vote.crypto;
+package sisve.ec.vote.crypto;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -1,14 +1,18 @@
-package com.uce.sisve.vote.repository;
+package sisve.ec.vote.repository;
 
-import com.uce.sisve.vote.db.VotoEntity;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
+import sisve.ec.vote.db.VotoEntity;
 
 import java.util.List;
 import java.util.Optional;
 
+import static io.quarkus.hibernate.orm.panache.PanacheEntityBase.count;
+import static io.quarkus.hibernate.orm.panache.PanacheEntityBase.find;
+import static java.util.Collections.list;
+
 @ApplicationScoped
-public class VotoRepository implements PanacheRepository<VotoEntity> {
+public class VotoRepository implements PanacheRepositoryBase<VotoEntity, Long> {
 
     public Optional<VotoEntity> findUltimoVoto(Long idEleccion) {
         return find("idEleccion = ?1 order by fechaRegistro desc", idEleccion).firstResultOptional();

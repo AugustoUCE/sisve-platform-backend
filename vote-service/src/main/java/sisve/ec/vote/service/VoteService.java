@@ -1,17 +1,5 @@
-package com.uce.sisve.vote.service;
+package sisve.ec.vote.service;
 
-import com.uce.sisve.vote.client.AuditClient;
-import com.uce.sisve.vote.client.AuthClient;
-import com.uce.sisve.vote.client.ElectionClient;
-import com.uce.sisve.vote.crypto.AesEncryptionUtil;
-import com.uce.sisve.vote.crypto.Sha256ChainUtil;
-import com.uce.sisve.vote.db.VotoEntity;
-import com.uce.sisve.vote.dto.EventoAuditoriaDTO;
-import com.uce.sisve.vote.dto.EleccionResponse;
-import com.uce.sisve.vote.dto.VotoRequest;
-import com.uce.sisve.vote.dto.VotoResponse;
-import com.uce.sisve.vote.mapper.VotoMapper;
-import com.uce.sisve.vote.repository.VotoRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -19,6 +7,18 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import sisve.ec.vote.client.AuditClient;
+import sisve.ec.vote.client.AuthClient;
+import sisve.ec.vote.client.ElectionClient;
+import sisve.ec.vote.crypto.AesEncryptionUtil;
+import sisve.ec.vote.crypto.Sha256ChainUtil;
+import sisve.ec.vote.db.VotoEntity;
+import sisve.ec.vote.dto.EleccionResponse;
+import sisve.ec.vote.dto.EventoAuditoriaDTO;
+import sisve.ec.vote.dto.VotoRequest;
+import sisve.ec.vote.dto.VotoResponse;
+import sisve.ec.vote.mapper.VotoMapper;
+import sisve.ec.vote.repository.VotoRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

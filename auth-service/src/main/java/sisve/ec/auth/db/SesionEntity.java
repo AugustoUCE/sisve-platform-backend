@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sesion", schema = "auth_schema")
-public class SesionEntity extends PanacheEntityBase {
+public class SesionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

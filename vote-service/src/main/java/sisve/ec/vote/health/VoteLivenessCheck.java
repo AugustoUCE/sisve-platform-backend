@@ -1,4 +1,4 @@
-package com.uce.sisve.vote.health;
+package sisve.ec.vote.health;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.HealthCheck;

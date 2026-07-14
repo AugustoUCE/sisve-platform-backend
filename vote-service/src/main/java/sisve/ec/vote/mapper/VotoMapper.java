@@ -1,8 +1,8 @@
-package com.uce.sisve.vote.mapper;
+package sisve.ec.vote.mapper;
 
-import com.uce.sisve.vote.db.VotoEntity;
-import com.uce.sisve.vote.dto.VotoResponse;
 import jakarta.enterprise.context.ApplicationScoped;
+import sisve.ec.vote.db.VotoEntity;
+import sisve.ec.vote.dto.VotoResponse;
 
 import java.time.LocalDateTime;
 

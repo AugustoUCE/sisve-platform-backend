@@ -1,7 +1,6 @@
-package com.uce.sisve.vote.rest;
+package sisve.ec.vote.rest;
 
-import com.uce.sisve.vote.dto.VotoRequest;
-import com.uce.sisve.vote.service.VoteService;
+
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -13,6 +12,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import sisve.ec.vote.dto.VotoRequest;
+import sisve.ec.vote.service.VoteService;
 
 import java.util.Map;
 

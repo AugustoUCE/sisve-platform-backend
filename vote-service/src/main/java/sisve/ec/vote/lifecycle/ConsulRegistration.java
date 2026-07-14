@@ -1,4 +1,4 @@
-package com.uce.sisve.vote.lifecycle;
+package sisve.ec.vote.lifecycle;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;

@@ -1,7 +1,6 @@
-package com.uce.sisve.vote.health;
+package sisve.ec.vote.health;
 
-import com.uce.sisve.vote.crypto.AesEncryptionUtil;
-import com.uce.sisve.vote.repository.VotoRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -9,6 +8,9 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
+import sisve.ec.vote.crypto.AesEncryptionUtil;
+import sisve.ec.vote.repository.VotoRepository;
+
 
 @Readiness
 @ApplicationScoped

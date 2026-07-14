@@ -1,6 +1,5 @@
-package com.uce.sisve.vote.lifecycle;
+package sisve.ec.vote.lifecycle;
 
-import com.uce.sisve.vote.crypto.AesEncryptionUtil;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
@@ -9,6 +8,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+import sisve.ec.vote.crypto.AesEncryptionUtil;
 
 @ApplicationScoped
 public class VoteStartup {

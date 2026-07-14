@@ -1,4 +1,4 @@
-package com.uce.sisve.vote.client;
+package sisve.ec.vote.client;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;

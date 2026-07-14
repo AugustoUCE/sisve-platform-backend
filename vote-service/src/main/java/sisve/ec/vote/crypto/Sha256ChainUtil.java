@@ -1,7 +1,7 @@
-package com.uce.sisve.vote.crypto;
+package sisve.ec.vote.crypto;
 
-import com.uce.sisve.vote.db.VotoEntity;
 import jakarta.enterprise.context.ApplicationScoped;
+import sisve.ec.vote.db.VotoEntity;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

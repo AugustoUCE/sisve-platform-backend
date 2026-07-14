@@ -1,6 +1,6 @@
-package com.uce.sisve.vote.client;
+package sisve.ec.vote.client;
 
-import com.uce.sisve.vote.dto.EleccionResponse;
+
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
@@ -8,7 +8,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import sisve.ec.vote.dto.EleccionResponse;
 
 import java.util.Map;
 

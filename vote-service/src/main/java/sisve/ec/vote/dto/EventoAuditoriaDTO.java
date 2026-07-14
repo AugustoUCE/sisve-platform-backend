@@ -1,4 +1,4 @@
-package com.uce.sisve.vote.dto;
+package sisve.ec.vote.dto;
 
 public record EventoAuditoriaDTO(
         String tipoEvento,

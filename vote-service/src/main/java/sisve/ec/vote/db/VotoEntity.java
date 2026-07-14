@@ -1,4 +1,4 @@
-package com.uce.sisve.vote.db;
+package sisve.ec.vote.db;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "voto", schema = "vote_schema")
-public class VotoEntity extends PanacheEntityBase {
+public class VotoEntity   {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
