@@ -7,6 +7,7 @@ CREATE TABLE auth_schema.votante (
     nombres VARCHAR(80) NOT NULL,
     apellidos VARCHAR(80) NOT NULL,
     estado BOOLEAN NOT NULL DEFAULT true
+
 );
 
 CREATE TABLE auth_schema.sesion (

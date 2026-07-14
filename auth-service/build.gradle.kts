@@ -1,3 +1,9 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.security.KeyPairGenerator
+import java.security.SecureRandom
+import java.util.Base64
+
 plugins {
     java
     id("io.quarkus")
@@ -43,4 +49,105 @@ java {
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
+}
+
+val generateDevJwtKeys by tasks.registering {
+    group = "development"
+    description = "Genera las claves RSA JWT para desarrollo"
+
+    doLast {
+        val resourcesDirectory = layout.projectDirectory
+            .dir("src/main/resources")
+            .asFile
+            .toPath()
+
+        val privateKeyPath = resourcesDirectory.resolve("privateKey.pem")
+        val publicKeyPath = resourcesDirectory.resolve("publicKey.pem")
+
+        fun isValidPem(
+            path: java.nio.file.Path,
+            expectedHeader: String
+        ): Boolean {
+            if (!Files.isRegularFile(path)) {
+                return false
+            }
+
+            if (Files.size(path) == 0L) {
+                return false
+            }
+
+            return Files.readString(path)
+                .contains(expectedHeader)
+        }
+
+        val privateKeyValid = isValidPem(
+            privateKeyPath,
+            "-----BEGIN PRIVATE KEY-----"
+        )
+
+        val publicKeyValid = isValidPem(
+            publicKeyPath,
+            "-----BEGIN PUBLIC KEY-----"
+        )
+
+        if (privateKeyValid && publicKeyValid) {
+            println("Las claves JWT de desarrollo ya existen.")
+            return@doLast
+        }
+
+        Files.createDirectories(resourcesDirectory)
+
+        val keyPairGenerator = KeyPairGenerator
+            .getInstance("RSA")
+            .apply {
+                initialize(2048, SecureRandom())
+            }
+
+        val keyPair = keyPairGenerator.generateKeyPair()
+
+        fun toPem(
+            type: String,
+            encodedKey: ByteArray
+        ): String {
+            val lineSeparator = byteArrayOf(
+                '\n'.code.toByte()
+            )
+
+            val base64 = Base64
+                .getMimeEncoder(64, lineSeparator)
+                .encodeToString(encodedKey)
+
+            return buildString {
+                appendLine("-----BEGIN $type-----")
+                appendLine(base64)
+                appendLine("-----END $type-----")
+            }
+        }
+
+        Files.writeString(
+            privateKeyPath,
+            toPem(
+                type = "PRIVATE KEY",
+                encodedKey = keyPair.private.encoded
+            ),
+            StandardCharsets.US_ASCII
+        )
+
+        Files.writeString(
+            publicKeyPath,
+            toPem(
+                type = "PUBLIC KEY",
+                encodedKey = keyPair.public.encoded
+            ),
+            StandardCharsets.US_ASCII
+        )
+
+        println("Claves JWT de desarrollo generadas:")
+        println(" - $privateKeyPath")
+        println(" - $publicKeyPath")
+    }
+}
+
+tasks.named("quarkusDev") {
+    dependsOn(generateDevJwtKeys)
 }
