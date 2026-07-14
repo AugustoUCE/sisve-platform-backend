@@ -33,7 +33,7 @@ nb-configuration.xml
 *.rej
 
 # Local environment
-plantilla.txt
+#plantilla.txt
 
 # Plugin directory
 /.quarkus/cli/plugins/
