@@ -1,6 +1,6 @@
-package com.uce.sisve.election.lifecycle;
+package sisve.ec.election.lifecycle;
 
-import com.uce.sisve.election.repository.EleccionRepository;
+import sisve.ec.election.repository.EleccionRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;

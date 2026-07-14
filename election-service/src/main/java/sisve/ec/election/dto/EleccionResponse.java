@@ -1,4 +1,4 @@
-package com.uce.sisve.election.dto;
+package sisve.ec.election.dto;
 
 import java.time.LocalDateTime;
 

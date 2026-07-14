@@ -1,6 +1,6 @@
-package com.uce.sisve.election.client;
+package sisve.ec.election.client;
 
-import com.uce.sisve.election.dto.EventoAuditoriaDTO;
+import sisve.ec.election.dto.EventoAuditoriaDTO;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;

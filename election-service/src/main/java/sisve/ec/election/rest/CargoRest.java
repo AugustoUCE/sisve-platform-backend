@@ -1,8 +1,8 @@
-package com.uce.sisve.election.rest;
+package sisve.ec.election.rest;
 
-import com.uce.sisve.election.dto.CandidatoRequest;
-import com.uce.sisve.election.dto.CandidatoResponse;
-import com.uce.sisve.election.service.ElectionService;
+import sisve.ec.election.dto.CandidatoRequest;
+import sisve.ec.election.dto.CandidatoResponse;
+import sisve.ec.election.service.ElectionService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;

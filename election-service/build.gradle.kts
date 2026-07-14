@@ -27,9 +27,9 @@ dependencies {
     implementation("io.quarkus:quarkus-micrometer")
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
     implementation("io.quarkus:quarkus-smallrye-openapi")
-    implementation("io.quarkus:quarkus-smallrye-stork")
     implementation("io.quarkus:quarkus-swagger-ui")
     implementation("io.smallrye.stork:stork-service-discovery-consul")
+    implementation("io.quarkus:quarkus-smallrye-stork")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
 }

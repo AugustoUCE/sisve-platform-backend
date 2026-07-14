@@ -1,6 +1,7 @@
-package com.uce.sisve.election.repository;
+package sisve.ec.election.repository;
 
-import com.uce.sisve.election.db.EleccionEntity;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import sisve.ec.election.db.EleccionEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
-public class EleccionRepository implements PanacheRepository<EleccionEntity> {
+public class EleccionRepository implements PanacheRepositoryBase<EleccionEntity, Long> {
 
     public List<EleccionEntity> findActivas() {
         LocalDateTime ahora = LocalDateTime.now();

@@ -1,4 +1,4 @@
-package com.uce.sisve.election.db;
+package sisve.ec.election.db;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.uce.sisve.election.health;
+package sisve.ec.election.health;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;

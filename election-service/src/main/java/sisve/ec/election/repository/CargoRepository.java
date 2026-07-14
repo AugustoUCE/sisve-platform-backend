@@ -1,13 +1,14 @@
-package com.uce.sisve.election.repository;
+package sisve.ec.election.repository;
 
-import com.uce.sisve.election.db.CargoEntity;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import sisve.ec.election.db.CargoEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 
 @ApplicationScoped
-public class CargoRepository implements PanacheRepository<CargoEntity> {
+public class CargoRepository implements PanacheRepositoryBase<CargoEntity,Long> {
 
     public List<CargoEntity> findByEleccion(Long idEleccion) {
         return list("idEleccion", idEleccion);

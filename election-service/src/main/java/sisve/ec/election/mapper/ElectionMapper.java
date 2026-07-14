@@ -1,14 +1,14 @@
-package com.uce.sisve.election.mapper;
+package sisve.ec.election.mapper;
 
-import com.uce.sisve.election.db.CandidatoEntity;
-import com.uce.sisve.election.db.CargoEntity;
-import com.uce.sisve.election.db.EleccionEntity;
-import com.uce.sisve.election.dto.CandidatoRequest;
-import com.uce.sisve.election.dto.CandidatoResponse;
-import com.uce.sisve.election.dto.CargoRequest;
-import com.uce.sisve.election.dto.CargoResponse;
-import com.uce.sisve.election.dto.EleccionRequest;
-import com.uce.sisve.election.dto.EleccionResponse;
+import sisve.ec.election.db.CandidatoEntity;
+import sisve.ec.election.db.CargoEntity;
+import sisve.ec.election.db.EleccionEntity;
+import sisve.ec.election.dto.CandidatoRequest;
+import sisve.ec.election.dto.CandidatoResponse;
+import sisve.ec.election.dto.CargoRequest;
+import sisve.ec.election.dto.CargoResponse;
+import sisve.ec.election.dto.EleccionRequest;
+import sisve.ec.election.dto.EleccionResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;

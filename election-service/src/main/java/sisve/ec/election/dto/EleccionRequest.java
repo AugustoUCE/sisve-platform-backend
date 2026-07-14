@@ -1,4 +1,4 @@
-package com.uce.sisve.election.dto;
+package sisve.ec.election.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

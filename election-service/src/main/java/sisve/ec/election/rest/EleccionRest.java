@@ -1,11 +1,11 @@
-package com.uce.sisve.election.rest;
+package sisve.ec.election.rest;
 
-import com.uce.sisve.election.dto.CargoRequest;
-import com.uce.sisve.election.dto.CargoResponse;
-import com.uce.sisve.election.dto.EleccionRequest;
-import com.uce.sisve.election.dto.EleccionResponse;
-import com.uce.sisve.election.dto.PadronCargaRequest;
-import com.uce.sisve.election.service.ElectionService;
+import sisve.ec.election.dto.CargoRequest;
+import sisve.ec.election.dto.CargoResponse;
+import sisve.ec.election.dto.EleccionRequest;
+import sisve.ec.election.dto.EleccionResponse;
+import sisve.ec.election.dto.PadronCargaRequest;
+import sisve.ec.election.service.ElectionService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;

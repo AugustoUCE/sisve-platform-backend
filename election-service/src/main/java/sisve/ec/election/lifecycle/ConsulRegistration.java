@@ -1,4 +1,4 @@
-package com.uce.sisve.election.lifecycle;
+package sisve.ec.election.lifecycle;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;

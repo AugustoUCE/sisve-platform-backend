@@ -20,8 +20,8 @@ dependencies {
     implementation("io.quarkus:quarkus-hibernate-orm-panache")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
     implementation("io.quarkus:quarkus-flyway")
-    implementation("io.quarkus:quarkus-rest-client-reactive")
-    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
+    implementation("io.quarkus:quarkus-rest-client")
+    implementation("io.quarkus:quarkus-rest-client-jackson")
     implementation("io.quarkus:quarkus-smallrye-jwt")
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-smallrye-health")
@@ -29,6 +29,9 @@ dependencies {
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
     implementation("io.quarkus:quarkus-smallrye-openapi")
     implementation("io.quarkus:quarkus-swagger-ui")
+
+    implementation("io.quarkus:quarkus-smallrye-stork")
+
     implementation("io.smallrye.stork:stork-service-discovery-consul")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")

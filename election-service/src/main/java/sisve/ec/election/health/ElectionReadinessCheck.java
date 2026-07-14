@@ -1,6 +1,6 @@
-package com.uce.sisve.election.health;
+package sisve.ec.election.health;
 
-import com.uce.sisve.election.repository.EleccionRepository;
+import sisve.ec.election.repository.EleccionRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.health.HealthCheck;
