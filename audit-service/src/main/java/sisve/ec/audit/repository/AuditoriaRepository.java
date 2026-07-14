@@ -1,6 +1,6 @@
 package sisve.ec.audit.repository;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import sisve.ec.audit.db.AuditoriaEntity;
 
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
-public class AuditoriaRepository implements PanacheRepository<AuditoriaEntity> {
+public class AuditoriaRepository implements PanacheRepositoryBase<AuditoriaEntity, Long > {
 
     public List<AuditoriaEntity> findByServicio(String servicioOrigen) {
         return list("servicioOrigen", servicioOrigen);
