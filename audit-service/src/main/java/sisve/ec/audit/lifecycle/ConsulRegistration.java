@@ -1,4 +1,4 @@
-package sisve.ec.election.lifecycle;
+package sisve.ec.audit.lifecycle;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 @ApplicationScoped
 public class ConsulRegistration {
 
-    private static final Logger LOG =
+    private static final Logger LOGGER =
             Logger.getLogger(ConsulRegistration.class);
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -27,7 +27,7 @@ public class ConsulRegistration {
 
     @ConfigProperty(
             name = "quarkus.http.port",
-            defaultValue = "8082"
+            defaultValue = "8084"
     )
     int httpPort;
 
@@ -43,10 +43,6 @@ public class ConsulRegistration {
     )
     int consulPort;
 
-    /*
-     * Dirección utilizada por Consul, Traefik y otros
-     * contenedores para acceder al servicio en Windows.
-     */
     @ConfigProperty(
             name = "service.discovery.address",
             defaultValue = "host.docker.internal"
@@ -67,7 +63,7 @@ public class ConsulRegistration {
                     .getLocalHost()
                     .getHostName();
 
-            serviceId = "election-service-" + hostName;
+            serviceId = "audit-service-" + hostName;
 
             String healthUrl = String.format(
                     "http://%s:%d/health/ready",
@@ -78,16 +74,16 @@ public class ConsulRegistration {
             String payload = """
                     {
                       "ID": "%s",
-                      "Name": "election-service",
+                      "Name": "audit-service",
                       "Address": "%s",
                       "Port": %d,
                       "Tags": [
                         "sisve",
-                        "election",
+                        "audit",
                         "quarkus"
                       ],
                       "Check": {
-                        "Name": "election-service-readiness",
+                        "Name": "audit-service-readiness",
                         "HTTP": "%s",
                         "Interval": "10s",
                         "Timeout": "5s",
@@ -129,8 +125,8 @@ public class ConsulRegistration {
             if (response.statusCode() >= 200
                     && response.statusCode() < 300) {
 
-                LOG.infof(
-                        "election-service registrado en Consul. "
+                LOGGER.infof(
+                        "audit-service registrado en Consul. "
                                 + "ID: %s, dirección: %s:%d, health: %s",
                         serviceId,
                         serviceAddress,
@@ -141,8 +137,8 @@ public class ConsulRegistration {
                 return;
             }
 
-            LOG.warnf(
-                    "Consul rechazó el registro de election-service. "
+            LOGGER.warnf(
+                    "Consul rechazó el registro de audit-service. "
                             + "Status: %d, respuesta: %s",
                     response.statusCode(),
                     response.body()
@@ -151,20 +147,20 @@ public class ConsulRegistration {
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
 
-            LOG.warn(
-                    "Registro de election-service interrumpido",
+            LOGGER.warn(
+                    "Registro de audit-service interrumpido",
                     exception
             );
 
         } catch (IOException exception) {
-            LOG.warn(
+            LOGGER.warn(
                     "No fue posible comunicarse con Consul",
                     exception
             );
 
         } catch (Exception exception) {
-            LOG.warn(
-                    "Error inesperado registrando election-service",
+            LOGGER.warn(
+                    "Error inesperado registrando audit-service",
                     exception
             );
         }
@@ -198,16 +194,16 @@ public class ConsulRegistration {
             if (response.statusCode() >= 200
                     && response.statusCode() < 300) {
 
-                LOG.infof(
-                        "election-service eliminado de Consul. ID: %s",
+                LOGGER.infof(
+                        "audit-service eliminado de Consul. ID: %s",
                         serviceId
                 );
 
                 return;
             }
 
-            LOG.warnf(
-                    "No se pudo eliminar election-service de Consul. "
+            LOGGER.warnf(
+                    "No se pudo eliminar audit-service de Consul. "
                             + "Status: %d, respuesta: %s",
                     response.statusCode(),
                     response.body()
@@ -216,14 +212,14 @@ public class ConsulRegistration {
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
 
-            LOG.warn(
-                    "Desregistro de election-service interrumpido",
+            LOGGER.warn(
+                    "Desregistro de audit-service interrumpido",
                     exception
             );
 
         } catch (Exception exception) {
-            LOG.warn(
-                    "No se pudo eliminar election-service de Consul",
+            LOGGER.warn(
+                    "No se pudo eliminar audit-service de Consul",
                     exception
             );
         }

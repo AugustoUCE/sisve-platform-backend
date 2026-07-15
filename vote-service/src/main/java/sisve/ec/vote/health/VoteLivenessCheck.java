@@ -12,7 +12,10 @@ public class VoteLivenessCheck implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        HealthCheckResponseBuilder builder = HealthCheckResponse.named("vote-service-live");
-        return builder.up().build();
+        return HealthCheckResponse
+                .named("vote-service-liveness")
+                .up()
+                .withData("service", "Vote service is alive")
+                .build();
     }
 }

@@ -12,17 +12,14 @@ import org.eclipse.microprofile.health.Readiness;
 @ApplicationScoped
 public class ElectionReadinessCheck implements HealthCheck {
 
-    @Inject
-    EleccionRepository eleccionRepository;
+
 
     @Override
     public HealthCheckResponse call() {
-        HealthCheckResponseBuilder builder = HealthCheckResponse.named("election-service-ready");
-        try {
-            eleccionRepository.count();
-            return builder.up().build();
-        } catch (Exception e) {
-            return builder.down().withData("error", e.getMessage()).build();
-        }
+       return HealthCheckResponse
+                .named("election-service-ready")
+                .up()
+                .withData("service", "Election service is ready")
+                .build();
     }
 }

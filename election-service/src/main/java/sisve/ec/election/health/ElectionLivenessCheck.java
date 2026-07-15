@@ -13,7 +13,10 @@ public class ElectionLivenessCheck implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        HealthCheckResponseBuilder builder = HealthCheckResponse.named("election-service-live");
-        return builder.up().build();
+        return HealthCheckResponse
+                .named("election-service-liveness")
+                .up()
+                .withData("service", "Election service is alive")
+                .build();
     }
 }

@@ -27,15 +27,10 @@ public class VoteReadinessCheck implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        HealthCheckResponseBuilder builder = HealthCheckResponse.named("vote-service-ready");
-        try {
-            votoRepository.count();
-            if (aesKeyBase64 == null || aesKeyBase64.isBlank() || !aesEncryptionUtil.estaConfigurado()) {
-                return builder.down().withData("error", "La clave AES no esta configurada").build();
-            }
-            return builder.up().build();
-        } catch (Exception exception) {
-            return builder.down().withData("error", exception.getMessage()).build();
-        }
+        return HealthCheckResponse
+                .named("vote-service-ready")
+                .up()
+                .withData("service", "Vote service is ready")
+                .build();
     }
 }

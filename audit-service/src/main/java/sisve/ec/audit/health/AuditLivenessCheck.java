@@ -11,6 +11,10 @@ public class AuditLivenessCheck implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        return HealthCheckResponse.up("audit-service-live");
+        return HealthCheckResponse
+                .named("audit-service-live")
+                .up()
+                .withData("service", "audit-service")
+                .build();
     }
 }
