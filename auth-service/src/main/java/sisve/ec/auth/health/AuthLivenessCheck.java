@@ -9,6 +9,10 @@ public class AuthLivenessCheck implements HealthCheck {
 
     @Override
     public HealthCheckResponse call() {
-        return HealthCheckResponse.up("auth-service-live");
+        return HealthCheckResponse
+                .named("auth-service-live")
+                .up()
+                .withData("service", "auth-service")
+                .build();
     }
 }
