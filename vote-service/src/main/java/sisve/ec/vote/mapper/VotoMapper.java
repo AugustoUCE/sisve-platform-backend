@@ -19,7 +19,7 @@ public class VotoMapper {
         return entity;
     }
 
-    public VotoResponse toResponse(VotoEntity entity) {
-        return new VotoResponse("Voto registrado exitosamente", entity.hashActual, entity.fechaRegistro);
+    public VotoResponse toResponse(Long idEleccion, Long idVotante, VotoEntity entity) {
+        return new VotoResponse("Voto registrado correctamente", idEleccion, idVotante, entity.hashActual, entity.fechaRegistro);
     }
 }

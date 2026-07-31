@@ -9,6 +9,7 @@ import sisve.ec.election.dto.CandidatoRequest;
 import sisve.ec.election.dto.EventoAuditoriaDTO;
 import sisve.ec.election.dto.CandidatoResponse;
 import sisve.ec.election.dto.CargoResponse;
+import sisve.ec.election.dto.EstadoParticipacionResponse;
 import sisve.ec.election.dto.EleccionRequest;
 import sisve.ec.election.dto.EleccionResponse;
 import sisve.ec.election.dto.PadronCargaRequest;
@@ -64,6 +65,44 @@ public class ElectionService {
 
     public List<EleccionResponse> listarActivas() {
         return eleccionRepository.findActivas().stream().map(mapper::toResponse).toList();
+    }
+
+    public EleccionResponse obtenerEleccion(Long idEleccion) {
+        EleccionEntity eleccion = eleccionRepository.findById(idEleccion);
+        if (eleccion == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        return mapper.toResponse(eleccion);
+    }
+
+    public List<CargoResponse> listarCargosPorEleccion(Long idEleccion) {
+        EleccionEntity eleccion = eleccionRepository.findById(idEleccion);
+        if (eleccion == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        return cargoRepository.findByEleccion(idEleccion).stream()
+                .map(mapper::toCargoResponse)
+                .toList();
+    }
+
+    public List<CandidatoResponse> listarCandidatosPorEleccion(Long idEleccion) {
+        EleccionEntity eleccion = eleccionRepository.findById(idEleccion);
+        if (eleccion == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        List<CargoEntity> cargos = cargoRepository.findByEleccion(idEleccion);
+        return cargos.stream()
+                .flatMap(cargo -> candidatoRepository.findByCargo(cargo.idCargo).stream())
+                .map(mapper::toCandidatoResponse)
+                .toList();
+    }
+
+    public EstadoParticipacionResponse obtenerEstadoParticipacion(Long idEleccion, Long idVotante) {
+        boolean habilitado = votanteEleccionRepository.estaHabilitado(idVotante, idEleccion);
+        boolean haVotado = votanteEleccionRepository.findByIdOptional(new VotanteEleccionEntity.VotanteEleccionId(idVotante, idEleccion))
+                .map(registro -> Boolean.TRUE.equals(registro.haVotado))
+                .orElse(false);
+        return new EstadoParticipacionResponse(idEleccion, idVotante, habilitado, haVotado);
     }
 
     @Transactional

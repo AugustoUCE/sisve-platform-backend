@@ -307,6 +307,21 @@ public record PadronCargaRequest(
 - `GET /elecciones/{id}/habilitado/{idVotante}` → `Map.of("habilitado", verificarHabilitado)`
 - `PUT /elecciones/{id}/marcar-votado/{idVotante}` → marcarVotado
 
+## Datos de prueba local
+
+Archivo: `src/main/resources/dev/local-dev-reset-and-seed.sql`
+
+Este script es solo para desarrollo local y deja el entorno listo para probar el frontend:
+- Elección `id_eleccion = 1` con estado `activo`
+- Fechas amplias para todo 2026
+- Cargo `id_cargo = 1`
+- Candidato `id_candidato = 1`
+- Votantes habilitados `id_votante = 1` y `id_votante = 3`
+- `ha_votado = false` y `fecha_participacion = NULL`
+- Limpieza de `vote_schema.voto` para repetir pruebas
+
+Si solo necesitas resetear el padrón manualmente, el script también deja comentado el bloque mínimo con `DISABLE TRIGGER USER` / `ENABLE TRIGGER USER`.
+
 ### `rest/CargoRest.java` — `@Path("/cargos")`
 - `POST /cargos/{id}/candidatos` → crearCandidato
 - `GET /cargos/{id}/candidatos` → listarPorCargo

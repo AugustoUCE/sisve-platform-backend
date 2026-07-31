@@ -70,3 +70,42 @@ git push origin v1.0
 - **Prohibido** hacer commits directo sobre `main`, `quality` o `development`.
 - Toda línea de código nueva debe nacer en una rama `feature/`.
 - El parámetro `--no-ff` es obligatorio en todos los `git merge` para no perder la visualización del gráfico.
+
+# SISVE Backend - Guía de Ejecución Local
+
+Este documento explica cómo levantar el backend de SISVE en ambiente local para probar el flujo completo desde Swagger o desde el frontend.
+
+## 1. Descripción general
+
+SISVE es un sistema web de voto electrónico universitario basado en microservicios.
+
+El backend está dividido en cuatro servicios principales:
+
+| Microservicio | Puerto | Descripción |
+|---|---:|---|
+| auth-service | 8081 | Autenticación, login, logout y validación de sesión |
+| election-service | 8082 | Elecciones, cargos, candidatos y estado de participación |
+| vote-service | 8083 | Emisión de votos, validación de voto e integridad |
+| audit-service | 8084 | Registro y consulta de auditorías |
+
+La infraestructura de base de datos y herramientas de soporte se ejecuta con Docker Compose.
+
+Los microservicios se ejecutan localmente con `quarkusDev`.
+
+---
+
+## 2. Requisitos previos
+
+Antes de ejecutar el proyecto, verificar que estén instalados:
+
+- Java 21
+- Docker Desktop
+- PowerShell
+- Git
+- Visual Studio Code o IntelliJ IDEA
+- Gradle Wrapper incluido en el proyecto
+
+Verificar Java:
+
+```powershell
+java -version

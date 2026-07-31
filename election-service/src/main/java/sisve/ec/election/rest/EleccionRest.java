@@ -2,6 +2,7 @@ package sisve.ec.election.rest;
 
 import sisve.ec.election.dto.CargoRequest;
 import sisve.ec.election.dto.CargoResponse;
+import sisve.ec.election.dto.EstadoParticipacionResponse;
 import sisve.ec.election.dto.EleccionRequest;
 import sisve.ec.election.dto.EleccionResponse;
 import sisve.ec.election.dto.PadronCargaRequest;
@@ -41,6 +42,24 @@ public class EleccionRest {
         return electionService.listarActivas();
     }
 
+    @GET
+    @Path("/{id}")
+    public EleccionResponse obtenerPorId(@PathParam("id") Long idEleccion) {
+        return electionService.obtenerEleccion(idEleccion);
+    }
+
+    @GET
+    @Path("/{id}/cargos")
+    public List<CargoResponse> listarCargos(@PathParam("id") Long idEleccion) {
+        return electionService.listarCargosPorEleccion(idEleccion);
+    }
+
+    @GET
+    @Path("/{id}/candidatos")
+    public List<sisve.ec.election.dto.CandidatoResponse> listarCandidatosPorEleccion(@PathParam("id") Long idEleccion) {
+        return electionService.listarCandidatosPorEleccion(idEleccion);
+    }
+
     @POST
     @Path("/{id}/cargos")
     public Response crearCargo(@PathParam("id") Long idEleccion, @Valid CargoRequest request) {
@@ -59,6 +78,12 @@ public class EleccionRest {
     @Path("/{id}/habilitado/{idVotante}")
     public Map<String, Boolean> verificarHabilitado(@PathParam("id") Long idEleccion, @PathParam("idVotante") Long idVotante) {
         return Map.of("habilitado", electionService.verificarHabilitado(idEleccion, idVotante));
+    }
+
+    @GET
+    @Path("/{id}/votantes/{idVotante}/estado")
+    public EstadoParticipacionResponse estadoParticipacion(@PathParam("id") Long idEleccion, @PathParam("idVotante") Long idVotante) {
+        return electionService.obtenerEstadoParticipacion(idEleccion, idVotante);
     }
 
     @PUT

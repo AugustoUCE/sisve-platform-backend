@@ -8,8 +8,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-
-import java.util.Map;
+import sisve.ec.vote.dto.ValidateResponse;
 
 @RegisterRestClient(configKey = "auth-service")
 @Path("/auth")
@@ -19,7 +18,7 @@ public interface AuthClient {
 
     @GET
     @Path("/validate")
-    Map<String, Boolean> validarToken(@HeaderParam("Authorization") String authHeader);
+    ValidateResponse validarToken(@HeaderParam("Authorization") String authHeader);
 
     @POST
     @Path("/logout")

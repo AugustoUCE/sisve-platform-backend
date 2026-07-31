@@ -20,6 +20,9 @@ Flujo completo:
 8. Invalida token en Auth Service
 9. Registra evento en Audit Service
 
+Después de un voto exitoso, `VoteService` llama a `/auth/logout` con el mismo `Authorization: Bearer ...`.
+Impacto en frontend: después de la confirmación de voto, no se debe seguir reutilizando ese token; lo correcto es mostrar la pantalla de confirmación y luego regresar al login o reiniciar la sesión.
+
 ## Estructura de paquetes
 ```
 src/main/java/sisve/ec/vote/
@@ -256,6 +259,10 @@ no se puede registrar ningún voto fuera del período electoral definido.
 10. `auditClient.registrarEvento("VOTO_EMITIDO", "Eleccion " + request.idEleccion(), "vote-service")`
 11. `meterRegistry.counter("vote.votos.emitidos", "eleccion", request.idEleccion().toString()).increment()`
 12. Retorna `mapper.toResponse(voto)`
+
+Nota operativa:
+- La auditoría y las métricas se manejan de forma segura para no romper el voto si fallan.
+- El token se invalida al final del flujo, por lo que el frontend debe tratar el voto como cierre de sesión del votante.
 
 #### `boolean verificarIntegridad(Long idEleccion)`
 1. `List<VotoEntity> votos = votoRepository.findByEleccionOrdenado(idEleccion)`

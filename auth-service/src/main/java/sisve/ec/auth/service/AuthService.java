@@ -6,6 +6,7 @@ import sisve.ec.auth.db.VotanteEntity;
 import sisve.ec.auth.dto.EventoAuditoriaDTO;
 import sisve.ec.auth.dto.LoginRequest;
 import sisve.ec.auth.dto.LoginResponse;
+import sisve.ec.auth.dto.ValidateResponse;
 import sisve.ec.auth.mapper.AuthMapper;
 import sisve.ec.auth.repository.SesionRepository;
 import sisve.ec.auth.repository.VotanteRepository;
@@ -45,9 +46,13 @@ public class AuthService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
         VotanteEntity votante = votanteRepository.findByCedulaAndCorreo(request.cedula(), request.correoInstitucional())
-                .orElseThrow(() -> new WebApplicationException(Response.Status.UNAUTHORIZED));
+                .orElseGet(() -> {
+                    registrarAuditoria("LOGIN_FALLIDO", "Credenciales inválidas para cédula " + request.cedula());
+                    throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+                });
 
         if (!Boolean.TRUE.equals(votante.estado)) {
+            registrarAuditoria("LOGIN_FALLIDO", "Votante inactivo: " + votante.cedula);
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
 
@@ -69,22 +74,28 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String tokenHash) {
-        sesionRepository.findByTokenHash(tokenHash).ifPresent(sesion -> {
-            sesionRepository.invalidarSesion(sesion.idSesion);
-            auditClient.registrarEvento(new EventoAuditoriaDTO(
-                    "LOGOUT",
-                    "Sesión invalidada para votante " + sesion.idVotante,
-                    "auth-service"
-            ));
-            meterRegistry.counter("auth.logout.exitoso").increment();
-        });
+    public void logout(String token) {
+        String tokenHash = jwtTokenGenerator.calcularHash(token);
+
+        SesionEntity sesion = sesionRepository.findByTokenHash(tokenHash)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.UNAUTHORIZED));
+
+        sesionRepository.invalidarSesion(sesion.idSesion);
+        registrarAuditoria("LOGOUT", "Sesión invalidada para votante " + sesion.idVotante);
+        meterRegistry.counter("auth.logout.exitoso").increment();
     }
 
-    public boolean validarToken(String tokenHash) {
-        return sesionRepository.findByTokenHash(tokenHash)
-                .map(this::validarSesion)
-                .orElse(false);
+    public ValidateResponse validarToken(String token) {
+        String tokenHash = jwtTokenGenerator.calcularHash(token);
+
+        SesionEntity sesion = sesionRepository.findByTokenHash(tokenHash)
+                .filter(this::validarSesion)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.UNAUTHORIZED));
+
+        VotanteEntity votante = votanteRepository.findByIdOptional(sesion.idVotante)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.UNAUTHORIZED));
+
+        return authMapper.toValidateResponse(votante);
     }
 
     private boolean validarSesion(SesionEntity sesion) {
@@ -93,5 +104,9 @@ public class AuthService {
             return false;
         }
         return true;
+    }
+
+    private void registrarAuditoria(String tipoEvento, String descripcion) {
+        auditClient.registrarEvento(new EventoAuditoriaDTO(tipoEvento, descripcion, "auth-service"));
     }
 }

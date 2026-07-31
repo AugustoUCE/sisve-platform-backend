@@ -2,6 +2,7 @@ package sisve.ec.auth.rest;
 
 import sisve.ec.auth.dto.LoginRequest;
 import sisve.ec.auth.dto.LoginResponse;
+import sisve.ec.auth.dto.ValidateResponse;
 import sisve.ec.auth.service.AuthService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -13,8 +14,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.util.Map;
 
 @Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,6 +31,7 @@ public class AuthRest {
 
     @POST
     @Path("/logout")
+    @Consumes(MediaType.WILDCARD)
     public Response logout(@HeaderParam("Authorization") String authorization) {
         authService.logout(extraerToken(authorization));
         return Response.noContent().build();
@@ -39,8 +39,8 @@ public class AuthRest {
 
     @GET
     @Path("/validate")
-    public Map<String, Boolean> validate(@HeaderParam("Authorization") String authorization) {
-        return Map.of("valido", authService.validarToken(extraerToken(authorization)));
+    public ValidateResponse validate(@HeaderParam("Authorization") String authorization) {
+        return authService.validarToken(extraerToken(authorization));
     }
 
     private String extraerToken(String authorization) {
