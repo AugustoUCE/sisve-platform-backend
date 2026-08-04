@@ -10,9 +10,4 @@ pluginManagement {
         id(quarkusPluginId) version quarkusPluginVersion
     }
 }
-rootProject.name="sisve-backend"
-include("auth-service")
-include("election-service")
-include("vote-service")
-include("audit-service")
-include("polling-station-service")
+rootProject.name="polling-station-service"

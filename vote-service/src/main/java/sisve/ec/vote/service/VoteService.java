@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import sisve.ec.vote.client.AuditClient;
 import sisve.ec.vote.client.CargoClient;
+import sisve.ec.vote.client.PollingStationClient;
 import sisve.ec.vote.client.AuthClient;
 import sisve.ec.vote.client.ElectionClient;
 import sisve.ec.vote.crypto.AesEncryptionUtil;
@@ -56,6 +57,10 @@ public class VoteService {
 
     @Inject
     @RestClient
+    PollingStationClient pollingStationClient;
+
+    @Inject
+    @RestClient
     AuditClient auditClient;
 
     @Inject
@@ -81,6 +86,23 @@ public class VoteService {
         EleccionResponse eleccion = electionClient.getEleccion(request.idEleccion());
         validarPeriodoElectoral(eleccion);
 
+        // Verificar elegibilidad en la mesa asignada
+        try {
+            var eleg = pollingStationClient.validarElegibilidad(request.idEleccion(), request.idVotante());
+            Boolean elegible = null;
+            if (eleg != null && eleg.get("eligible") instanceof Boolean) {
+                elegible = (Boolean) eleg.get("eligible");
+            }
+            if (!Boolean.TRUE.equals(elegible)) {
+                registrarAuditoriaSegura("VOTO_NO_HABILITADO_MESA", "Votante no elegible en la mesa para la elección " + request.idEleccion(), "vote-service");
+                throw httpException(Status.FORBIDDEN, "El votante no es elegible en su mesa de votación");
+            }
+        } catch (Exception ex) {
+            LOGGER.warnf(ex, "No fue posible verificar elegibilidad en polling-station-service");
+            // En caso de fallo de comunicación, prevenimos bloqueo total: opcionalmente permitir o denegar.
+            throw httpException(Status.SERVICE_UNAVAILABLE, "No se puede verificar elegibilidad en este momento");
+        }
+
         validarCargoPerteneceAEleccion(request.idEleccion(), request.idCargo());
         validarCandidatoPerteneceACargo(request.idCargo(), request.idCandidato());
 
@@ -103,6 +125,12 @@ public class VoteService {
         votoRepository.persist(voto);
 
         electionClient.marcarVotado(request.idEleccion(), request.idVotante());
+        // Intentar marcar votado en el servicio de mesas; falla no debe revertir el voto ya persistido
+        try {
+            pollingStationClient.marcarVotado(request.idEleccion(), request.idVotante());
+        } catch (Exception ex) {
+            LOGGER.warnf(ex, "No fue posible marcar votado en polling-station-service para votante %s en eleccion %s", request.idVotante(), request.idEleccion());
+        }
         authClient.logout(authHeader);
         registrarAuditoriaSegura("VOTO_EMITIDO", "Eleccion " + request.idEleccion() + ", votante " + request.idVotante(), "vote-service");
 

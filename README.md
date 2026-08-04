@@ -79,7 +79,7 @@ Este documento explica cómo levantar el backend de SISVE en ambiente local para
 
 SISVE es un sistema web de voto electrónico universitario basado en microservicios.
 
-El backend está dividido en cuatro servicios principales:
+El backend está dividido en cinco servicios principales:
 
 | Microservicio | Puerto | Descripción |
 |---|---:|---|
@@ -87,10 +87,25 @@ El backend está dividido en cuatro servicios principales:
 | election-service | 8082 | Elecciones, cargos, candidatos y estado de participación |
 | vote-service | 8083 | Emisión de votos, validación de voto e integridad |
 | audit-service | 8084 | Registro y consulta de auditorías |
+| polling-station-service | 8085 | Mesas electorales, padrón por mesa y habilitación de votantes |
 
 La infraestructura de base de datos y herramientas de soporte se ejecuta con Docker Compose.
 
 Los microservicios se ejecutan localmente con `quarkusDev`.
+
+El flujo local recomendado ahora incluye la mesa electoral:
+
+1. `auth-service`
+2. `election-service`
+3. `polling-station-service`
+4. `vote-service`
+5. `audit-service`
+
+Para la mesa electoral, iniciar el servicio desde la raíz con:
+
+```powershell
+.\gradlew.bat :polling-station-service:quarkusDev "-Ddebug=false"
+```
 
 ---
 
