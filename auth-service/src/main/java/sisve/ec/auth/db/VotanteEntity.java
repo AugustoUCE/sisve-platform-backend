@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "votante", schema = "auth_schema")
-public class VotanteEntity  {
+public class VotanteEntity  { 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
