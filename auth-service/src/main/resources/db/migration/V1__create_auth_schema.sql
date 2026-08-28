@@ -6,7 +6,8 @@ CREATE TABLE auth_schema.votante (
     correo_institucional VARCHAR(100) UNIQUE NOT NULL,
     nombres VARCHAR(80) NOT NULL,
     apellidos VARCHAR(80) NOT NULL,
-    estado BOOLEAN NOT NULL DEFAULT true
+    estado BOOLEAN NOT NULL DEFAULT true,
+    voto BOOLEAN NOT NULL DEFAULT false
 
 );
 
@@ -29,6 +30,7 @@ CREATE TABLE auth_schema.votante (
                                      nombres VARCHAR(80) NOT NULL,
                                      apellidos VARCHAR(80) NOT NULL,
                                      estado BOOLEAN NOT NULL DEFAULT TRUE,
+                                     voto BOOLEAN NOT NULL DEFAULT false,
 
                                      CONSTRAINT pk_votante
                                          PRIMARY KEY (id_votante),

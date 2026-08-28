@@ -31,4 +31,10 @@ public class VotanteEntity  {
 
     @Column(name = "estado", nullable = false)
     public Boolean estado = Boolean.TRUE;
+
+    @Column(name = "voto", nullable = false)
+    public Boolean voto = Boolean.FALSE;
+
+
+
 }

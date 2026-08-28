@@ -22,7 +22,7 @@ public class AuthMapper {
     }
 
     public LoginResponse toLoginResponse(VotanteEntity votante, String token) {
-        return new LoginResponse(token, votante.idVotante, votante.correoInstitucional, votante.nombres, votante.apellidos);
+        return new LoginResponse(token, votante.idVotante, votante.correoInstitucional, votante.nombres, votante.apellidos, votante.voto);
     }
 
     public ValidateResponse toValidateResponse(VotanteEntity votante) {
@@ -32,7 +32,8 @@ public class AuthMapper {
                 votante.cedula,
                 votante.correoInstitucional,
                 votante.nombres,
-                votante.apellidos
+                votante.apellidos,
+                votante.voto
         );
     }
 }

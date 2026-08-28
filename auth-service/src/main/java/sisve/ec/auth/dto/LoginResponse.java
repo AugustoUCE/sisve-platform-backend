@@ -5,6 +5,7 @@ public record LoginResponse(
         Long idVotante,
         String correoInstitucional,
         String nombres,
-        String apellidos
+        String apellidos,
+        Boolean voto
 ) {
 }

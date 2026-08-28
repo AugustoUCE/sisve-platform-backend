@@ -12,4 +12,15 @@ CONSUL_PORT=8500
 
 AUDIT_SERVICE_URL=http://localhost:8084
 
+QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=fDB_URL=jdbc:postgresql://localhost:54321/sisve_auth?currentSchema=auth_schema
+DB_USERNAME=auth_app_user
+DB_PASSWORD=auth_password_local_2026
+
+QUARKUS_HTTP_PORT=8081
+
+CONSUL_HOST=localhost
+CONSUL_PORT=8500
+
+AUDIT_SERVICE_URL=http://localhost:8084
+
 QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false
