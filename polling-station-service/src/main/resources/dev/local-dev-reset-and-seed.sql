@@ -1,9 +1,7 @@
 -- SOLO DESARROLLO LOCAL
 -- Reset y seed reproducible para pruebas del flujo de mesa electoral.
 -- No ejecutar en producción.
-
 BEGIN;
-
 TRUNCATE TABLE
     polling_station_schema.electoral_roll,
     polling_station_schema.polling_station_member,
@@ -26,6 +24,30 @@ INSERT INTO polling_station_schema.polling_station (
     1,
     'MESA-001',
     'Mesa Electoral 001',
+    'Facultad de Ingeniería',
+    'OPEN',
+    NOW(),
+    NULL,
+    NOW(),
+    NULL
+);
+
+INSERT INTO polling_station_schema.polling_station (
+    id_polling_station,
+    id_election,
+    code,
+    name,
+    location,
+    status,
+    opened_at,
+    closed_at,
+    created_at,
+    updated_at
+) VALUES (
+    2,
+    3,
+    'MESA-003',
+    'Mesa Electoral 003',
     'Facultad de Ingeniería',
     'OPEN',
     NOW(),
@@ -80,9 +102,9 @@ INSERT INTO polling_station_schema.electoral_roll (
     '1723456789',
     'Juan Carlos Pérez López',
     'juan.perez@uce.edu.ec',
-    'PENDING',
-    NULL,
-    NULL,
+    'ENABLED',
+    NOW(),
+    'PRESIDENTE001',
     NULL,
     NULL,
     NULL,
@@ -94,13 +116,49 @@ INSERT INTO polling_station_schema.electoral_roll (
     2,
     1,
     1,
+    2,
+    '1712345678',
+    'Maria Gomez',
+    'maria.gomez@uce.edu.ec',
+    'ENABLED',
+    NOW(),
+    'PRESIDENTE001',
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NOW(),
+    NULL
+),
+(
     3,
-    '1709876543',
-    'Carlos Mora',
-    'carlos.mora@uce.edu.ec',
-    'PENDING',
+    2,
+    3,
+    1,
+    '1723456789',
+    'Juan Carlos Pérez López',
+    'juan.perez@uce.edu.ec',
+    'ENABLED',
+    NOW(),
+    'PRESIDENTE001',
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NOW(),
+    NULL
+),
+(
+    4,
+    2,
+    3,
+    2,
+    '1712345678',
+    'Maria Gomez',
+    'maria.gomez@uce.edu.ec',
+    'ENABLED',
+    NOW(),
+    'PRESIDENTE001',
     NULL,
     NULL,
     NULL,
@@ -109,8 +167,8 @@ INSERT INTO polling_station_schema.electoral_roll (
     NULL
 );
 
-SELECT setval(pg_get_serial_sequence('polling_station_schema.polling_station', 'id_polling_station'), 1, true);
+SELECT setval(pg_get_serial_sequence('polling_station_schema.polling_station', 'id_polling_station'), 2, true);
 SELECT setval(pg_get_serial_sequence('polling_station_schema.polling_station_member', 'id_polling_station_member'), 1, true);
-SELECT setval(pg_get_serial_sequence('polling_station_schema.electoral_roll', 'id_electoral_roll'), 2, true);
+SELECT setval(pg_get_serial_sequence('polling_station_schema.electoral_roll', 'id_electoral_roll'), 4, true);
 
 COMMIT;

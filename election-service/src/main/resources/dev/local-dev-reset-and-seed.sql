@@ -70,7 +70,9 @@ INSERT INTO election_schema.votante_eleccion (
     fecha_participacion
 ) VALUES
     (1, 1, false, NULL),
-    (3, 1, false, NULL)
+    (2, 1, false, NULL),
+    (1, 3, false, NULL),
+    (2, 3, false, NULL)
 ON CONFLICT (id_votante, id_eleccion) DO UPDATE SET
     ha_votado = EXCLUDED.ha_votado,
     fecha_participacion = EXCLUDED.fecha_participacion;
@@ -92,6 +94,6 @@ COMMIT;
 -- SET ha_votado = false,
 --     fecha_participacion = NULL
 -- WHERE id_eleccion = 1
---   AND id_votante IN (1, 3);
+--   AND id_votante IN (1, 2);
 -- ALTER TABLE election_schema.votante_eleccion ENABLE TRIGGER USER;
 -- TRUNCATE TABLE vote_schema.voto RESTART IDENTITY CASCADE;

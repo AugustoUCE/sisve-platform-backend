@@ -72,6 +72,7 @@ quarkus.http.port=${QUARKUS_HTTP_PORT:8083}
 quarkus.rest-client.auth-service.url=${AUTH_SERVICE_URL}
 quarkus.rest-client.election-service.url=${ELECTION_SERVICE_URL}
 quarkus.rest-client.audit-service.url=${AUDIT_SERVICE_URL}
+quarkus.rest-client.polling-station-service.url=${POLLING_STATION_SERVICE_URL:http://localhost:8085}
 
 quarkus.stork.auth-service.service-discovery.type=consul
 quarkus.stork.auth-service.service-discovery.consul-host=${CONSUL_HOST:localhost}
@@ -102,6 +103,7 @@ CONSUL_PORT=8500
 AUTH_SERVICE_URL=http://localhost:8081
 ELECTION_SERVICE_URL=http://localhost:8082
 AUDIT_SERVICE_URL=http://localhost:8084
+POLLING_STATION_SERVICE_URL=http://localhost:8085
 AES_SECRET_KEY=clave_de_32_bytes_en_base64_aqui=
 ```
 

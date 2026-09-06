@@ -87,20 +87,20 @@ public class VoteService {
         validarPeriodoElectoral(eleccion);
 
         // Verificar elegibilidad en la mesa asignada
+        Boolean elegible;
         try {
             var eleg = pollingStationClient.validarElegibilidad(request.idEleccion(), request.idVotante());
-            Boolean elegible = null;
+            elegible = null;
             if (eleg != null && eleg.get("eligible") instanceof Boolean) {
                 elegible = (Boolean) eleg.get("eligible");
             }
-            if (!Boolean.TRUE.equals(elegible)) {
-                registrarAuditoriaSegura("VOTO_NO_HABILITADO_MESA", "Votante no elegible en la mesa para la elección " + request.idEleccion(), "vote-service");
-                throw httpException(Status.FORBIDDEN, "El votante no es elegible en su mesa de votación");
-            }
         } catch (Exception ex) {
             LOGGER.warnf(ex, "No fue posible verificar elegibilidad en polling-station-service");
-            // En caso de fallo de comunicación, prevenimos bloqueo total: opcionalmente permitir o denegar.
             throw httpException(Status.SERVICE_UNAVAILABLE, "No se puede verificar elegibilidad en este momento");
+        }
+        if (!Boolean.TRUE.equals(elegible)) {
+            registrarAuditoriaSegura("VOTO_NO_HABILITADO_MESA", "Votante no elegible en la mesa para la elección " + request.idEleccion(), "vote-service");
+            throw httpException(Status.FORBIDDEN, "El votante no es elegible en su mesa de votación");
         }
 
         validarCargoPerteneceAEleccion(request.idEleccion(), request.idCargo());

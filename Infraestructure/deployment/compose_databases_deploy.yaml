@@ -216,6 +216,60 @@ services:
       - sisve-network
 
 
+  # =========================================================
+  # POLLING STATION DATABASE
+  # =========================================================
+  polling-db:
+    image: ${POSTGRES_IMAGE}
+    container_name: sisve-polling-station-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POLLING_DB_NAME}
+      POSTGRES_USER: ${POLLING_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POLLING_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+
+    ports:
+      - "${POLLING_DB_HOST_PORT}:5432"
+
+    volumes:
+      - polling_pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+    networks:
+      - sisve-network
+
+
+  polling-postgres-exporter:
+    image: ${POSTGRES_EXPORTER_IMAGE}
+    container_name: sisve-polling-station-postgres-exporter
+    restart: unless-stopped
+
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POLLING_DB_USERNAME}:${POLLING_DB_PASSWORD}@polling-db:5432/${POLLING_DB_NAME}?sslmode=disable"
+
+    ports:
+      - "${POLLING_EXPORTER_HOST_PORT}:9187"
+
+    depends_on:
+      polling-db:
+        condition: service_healthy
+
+    networks:
+      - sisve-network
+
+
 volumes:
   auth_pgdata:
     name: ${AUTH_DB_VOLUME_NAME}
@@ -228,6 +282,9 @@ volumes:
 
   vote_pgdata:
     name: ${VOTE_DB_VOLUME_NAME}
+
+  polling_pgdata:
+    name: ${POLLING_DB_VOLUME_NAME}
 
 
 networks:
