@@ -33,7 +33,8 @@ public class AuthMapper {
                 votante.correoInstitucional,
                 votante.nombres,
                 votante.apellidos,
-                votante.voto
+                votante.voto,
+                "VOTER"
         );
     }
 }

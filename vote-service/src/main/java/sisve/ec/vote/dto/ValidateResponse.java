@@ -6,6 +6,8 @@ public record ValidateResponse(
         String cedula,
         String correoInstitucional,
         String nombres,
-        String apellidos
-) {
+        String apellidos,
+        Boolean voto,
+        String role
+){
 }

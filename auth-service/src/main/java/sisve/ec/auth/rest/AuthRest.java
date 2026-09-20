@@ -2,9 +2,12 @@ package sisve.ec.auth.rest;
 
 import sisve.ec.auth.dto.LoginRequest;
 import sisve.ec.auth.dto.LoginResponse;
+import sisve.ec.auth.dto.MemberLoginRequest;
+import sisve.ec.auth.dto.MemberLoginResponse;
 import sisve.ec.auth.dto.ValidateResponse;
 import sisve.ec.auth.service.AuthService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
@@ -27,6 +30,12 @@ public class AuthRest {
     @Path("/login")
     public LoginResponse login(LoginRequest request) {
         return authService.login(request);
+    }
+
+    @POST
+    @Path("/member-login")
+    public MemberLoginResponse memberLogin(@Valid MemberLoginRequest request) {
+        return authService.memberLogin(request);
     }
 
     @POST

@@ -2,15 +2,22 @@ package sisve.ec.auth.service;
 
 import sisve.ec.auth.client.AuditClient;
 import sisve.ec.auth.db.SesionEntity;
+import sisve.ec.auth.db.PollingStationMemberEntity;
+import sisve.ec.auth.db.PollingStationMemberSessionEntity;
 import sisve.ec.auth.db.VotanteEntity;
 import sisve.ec.auth.dto.EventoAuditoriaDTO;
 import sisve.ec.auth.dto.LoginRequest;
 import sisve.ec.auth.dto.LoginResponse;
+import sisve.ec.auth.dto.MemberLoginRequest;
+import sisve.ec.auth.dto.MemberLoginResponse;
 import sisve.ec.auth.dto.ValidateResponse;
 import sisve.ec.auth.mapper.AuthMapper;
 import sisve.ec.auth.repository.SesionRepository;
+import sisve.ec.auth.repository.PollingStationMemberRepository;
+import sisve.ec.auth.repository.PollingStationMemberSessionRepository;
 import sisve.ec.auth.repository.VotanteRepository;
 import sisve.ec.auth.security.JwtTokenGenerator;
+import sisve.ec.auth.security.PasswordHasher;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,7 +38,16 @@ public class AuthService {
     SesionRepository sesionRepository;
 
     @Inject
+    PollingStationMemberRepository pollingStationMemberRepository;
+
+    @Inject
+    PollingStationMemberSessionRepository pollingStationMemberSessionRepository;
+
+    @Inject
     JwtTokenGenerator jwtTokenGenerator;
+
+    @Inject
+    PasswordHasher passwordHasher;
 
     @Inject
     AuthMapper authMapper;
@@ -74,8 +90,36 @@ public class AuthService {
     }
 
     @Transactional
+    public MemberLoginResponse memberLogin(MemberLoginRequest request) {
+        PollingStationMemberEntity member = pollingStationMemberRepository
+                .findByUserIdentifier(request.userIdentifier())
+                .filter(item -> Boolean.TRUE.equals(item.status))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.UNAUTHORIZED));
+
+        if (!passwordHasher.matches(request.password(), member.passwordSalt, member.passwordHash)) {
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        }
+
+        String token = jwtTokenGenerator.generarToken(member);
+        PollingStationMemberSessionEntity session = new PollingStationMemberSessionEntity();
+        session.idMiembroMesa = member.idMiembroMesa;
+        session.tokenHash = jwtTokenGenerator.calcularHash(token);
+        session.fechaExpiracion = LocalDateTime.now().plusMinutes(30);
+        pollingStationMemberSessionRepository.persist(session);
+
+        return new MemberLoginResponse(token, member.idMiembroMesa, member.pollingStationId,
+                member.userIdentifier, member.fullName, "POLLING_STATION_MEMBER");
+    }
+
+    @Transactional
     public void logout(String token) {
         String tokenHash = jwtTokenGenerator.calcularHash(token);
+
+        var memberSession = pollingStationMemberSessionRepository.findByTokenHash(tokenHash);
+        if (memberSession.isPresent()) {
+            memberSession.get().estado = Boolean.FALSE;
+            return;
+        }
 
         SesionEntity sesion = sesionRepository.findByTokenHash(tokenHash)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.UNAUTHORIZED));

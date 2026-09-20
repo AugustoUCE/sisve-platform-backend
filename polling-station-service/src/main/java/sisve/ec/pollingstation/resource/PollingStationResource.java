@@ -20,6 +20,7 @@ import sisve.ec.pollingstation.dto.PollingStationEligibilityResponse;
 import sisve.ec.pollingstation.dto.PollingStationMemberResponse;
 import sisve.ec.pollingstation.dto.PollingStationResponse;
 import sisve.ec.pollingstation.dto.PollingStationSummaryResponse;
+import sisve.ec.pollingstation.dto.VoteReservationResponse;
 import sisve.ec.pollingstation.service.PollingStationService;
 
 import java.util.List;
@@ -51,6 +52,12 @@ public class PollingStationResource {
     }
 
     @GET
+    @Path("/me/electoral-roll")
+    public List<ElectoralRollResponse> obtenerMiPadron(@QueryParam("search") String search) {
+        return pollingStationService.obtenerPadronDeMiMesa(search);
+    }
+
+    @GET
     @Path("/{idPollingStation}/members")
     public List<PollingStationMemberResponse> listarMiembros(@PathParam("idPollingStation") Long idPollingStation) {
         return pollingStationService.listarMiembros(idPollingStation);
@@ -72,6 +79,12 @@ public class PollingStationResource {
     }
 
     @POST
+    @Path("/me/voters/{idVoter}/enable")
+    public Response habilitarMiVotante(@PathParam("idVoter") Long idVoter) {
+        return Response.ok(pollingStationService.habilitarVotanteDeMiMesa(idVoter)).build();
+    }
+
+    @POST
     @Path("/{idPollingStation}/voters/{idVoter}/block")
     public Response bloquearVotante(@PathParam("idPollingStation") Long idPollingStation,
                                     @PathParam("idVoter") Long idVoter,
@@ -86,11 +99,41 @@ public class PollingStationResource {
         return Response.ok(pollingStationService.marcarVotanteComoVotado(idElection, idVoter)).build();
     }
 
+    @POST
+    @Path("/me/election/{idElection}/mark-voted")
+    public Response marcarMiVotacionComoVotada(@PathParam("idElection") Long idElection) {
+        return Response.ok(pollingStationService.marcarMiVotacionComoVotada(idElection)).build();
+    }
+
     @GET
     @Path("/election/{idElection}/voters/{idVoter}/eligibility")
     public PollingStationEligibilityResponse validarElegibilidad(@PathParam("idElection") Long idElection,
                                                                  @PathParam("idVoter") Long idVoter) {
         return pollingStationService.validarElegibilidad(idElection, idVoter);
+    }
+
+    @GET
+    @Path("/me/eligibility")
+    public PollingStationEligibilityResponse miElegibilidad(@QueryParam("electionId") Long electionId) {
+        return pollingStationService.validarMiElegibilidad(electionId);
+    }
+
+    @POST
+    @Path("/me/election/{idElection}/reserve-vote")
+    public VoteReservationResponse reservarVoto(@PathParam("idElection") Long idElection) {
+        return pollingStationService.reservarVoto(idElection);
+    }
+
+    @POST
+    @Path("/me/election/{idElection}/complete-vote")
+    public VoteReservationResponse completarVoto(@PathParam("idElection") Long idElection) {
+        return pollingStationService.completarVoto(idElection);
+    }
+
+    @POST
+    @Path("/me/election/{idElection}/release-vote")
+    public void liberarReserva(@PathParam("idElection") Long idElection) {
+        pollingStationService.liberarReserva(idElection);
     }
 
     @POST

@@ -3,6 +3,7 @@ package sisve.ec.vote.client;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -20,12 +21,27 @@ import java.util.Map;
 public interface PollingStationClient {
 
     @GET
-    @Path("/election/{idElection}/voters/{idVoter}/eligibility")
-    Map<String, Object> validarElegibilidad(@PathParam("idElection") Long idElection,
-                                            @PathParam("idVoter") Long idVoter);
+    @Path("/me/eligibility")
+    Map<String, Object> validarElegibilidad(@HeaderParam("Authorization") String authHeader,
+                                            @jakarta.ws.rs.QueryParam("electionId") Long idElection);
 
     @POST
-    @Path("/election/{idElection}/voters/{idVoter}/mark-voted")
+    @Path("/me/election/{idElection}/mark-voted")
     void marcarVotado(@PathParam("idElection") Long idElection,
-                      @PathParam("idVoter") Long idVoter);
+                      @HeaderParam("Authorization") String authHeader);
+
+    @POST
+    @Path("/me/election/{idElection}/reserve-vote")
+    void reservarVoto(@PathParam("idElection") Long idElection,
+                      @HeaderParam("Authorization") String authHeader);
+
+    @POST
+    @Path("/me/election/{idElection}/complete-vote")
+    void completarVoto(@PathParam("idElection") Long idElection,
+                       @HeaderParam("Authorization") String authHeader);
+
+    @POST
+    @Path("/me/election/{idElection}/release-vote")
+    void liberarReserva(@PathParam("idElection") Long idElection,
+                        @HeaderParam("Authorization") String authHeader);
 }

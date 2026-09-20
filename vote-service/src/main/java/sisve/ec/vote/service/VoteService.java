@@ -16,6 +16,7 @@ import sisve.ec.vote.client.ElectionClient;
 import sisve.ec.vote.crypto.AesEncryptionUtil;
 import sisve.ec.vote.crypto.Sha256ChainUtil;
 import sisve.ec.vote.db.VotoEntity;
+import sisve.ec.vote.db.TipoVoto;
 import sisve.ec.vote.dto.CandidatoResponse;
 import sisve.ec.vote.dto.CargoResponse;
 import sisve.ec.vote.dto.EleccionResponse;
@@ -23,7 +24,6 @@ import sisve.ec.vote.dto.EventoAuditoriaDTO;
 import sisve.ec.vote.dto.VotoRequest;
 import sisve.ec.vote.dto.VotoResponse;
 import sisve.ec.vote.dto.ValidateResponse;
-import sisve.ec.vote.dto.EstadoParticipacionResponse;
 import sisve.ec.vote.mapper.VotoMapper;
 import sisve.ec.vote.repository.VotoRepository;
 import org.jboss.logging.Logger;
@@ -79,9 +79,10 @@ public class VoteService {
             throw httpException(Status.UNAUTHORIZED, "Token invalido");
         }
 
-        if (!request.idVotante().equals(validacion.idVotante())) {
-            throw httpException(Status.FORBIDDEN, "El votante autenticado no coincide con el cuerpo de la solicitud");
+        if (!"VOTER".equals(validacion.role()) || validacion.idVotante() == null) {
+            throw httpException(Status.FORBIDDEN, "Solo un votante puede emitir una papeleta");
         }
+        Long idVotante = validacion.idVotante();
 
         EleccionResponse eleccion = electionClient.getEleccion(request.idEleccion());
         validarPeriodoElectoral(eleccion);
@@ -89,7 +90,7 @@ public class VoteService {
         // Verificar elegibilidad en la mesa asignada
         Boolean elegible;
         try {
-            var eleg = pollingStationClient.validarElegibilidad(request.idEleccion(), request.idVotante());
+            var eleg = pollingStationClient.validarElegibilidad(authHeader, request.idEleccion());
             elegible = null;
             if (eleg != null && eleg.get("eligible") instanceof Boolean) {
                 elegible = (Boolean) eleg.get("eligible");
@@ -103,40 +104,55 @@ public class VoteService {
             throw httpException(Status.FORBIDDEN, "El votante no es elegible en su mesa de votación");
         }
 
-        validarCargoPerteneceAEleccion(request.idEleccion(), request.idCargo());
-        validarCandidatoPerteneceACargo(request.idCargo(), request.idCandidato());
-
-        EstadoParticipacionResponse estadoParticipacion = electionClient.obtenerEstadoParticipacion(request.idEleccion(), request.idVotante());
-        if (Boolean.TRUE.equals(estadoParticipacion.haVotado())) {
-            registrarAuditoriaSegura("VOTO_DUPLICADO", "Intento de voto duplicado para la elección " + request.idEleccion(), "vote-service");
-            throw httpException(Status.CONFLICT, "El votante ya registró su voto en esta elección.");
-        }
-
-        if (!Boolean.TRUE.equals(estadoParticipacion.habilitado())) {
-            throw httpException(Status.FORBIDDEN, "El votante no esta habilitado para esta eleccion");
-        }
-
-        String votoCifrado = aesUtil.cifrar(String.valueOf(request.idCandidato()));
-        Optional<VotoEntity> ultimo = votoRepository.findUltimoVoto(request.idEleccion());
-        String hashAnterior = ultimo.map(voto -> voto.hashActual).orElse(Sha256ChainUtil.HASH_SEMILLA);
-
-        String hashActual = sha256Util.calcularHash(votoCifrado, hashAnterior);
-        VotoEntity voto = votoMapper.toEntity(request.idEleccion(), votoCifrado, hashAnterior, hashActual);
-        votoRepository.persist(voto);
-
-        electionClient.marcarVotado(request.idEleccion(), request.idVotante());
-        // Intentar marcar votado en el servicio de mesas; falla no debe revertir el voto ya persistido
         try {
-            pollingStationClient.marcarVotado(request.idEleccion(), request.idVotante());
-        } catch (Exception ex) {
-            LOGGER.warnf(ex, "No fue posible marcar votado en polling-station-service para votante %s en eleccion %s", request.idVotante(), request.idEleccion());
+            pollingStationClient.reservarVoto(request.idEleccion(), authHeader);
+        } catch (Exception exception) {
+            throw httpException(Status.CONFLICT, "El votante ya inició o completó su votación");
         }
-        authClient.logout(authHeader);
-        registrarAuditoriaSegura("VOTO_EMITIDO", "Eleccion " + request.idEleccion() + ", votante " + request.idVotante(), "vote-service");
 
-        registrarMetricaSegura(() -> meterRegistry.counter("vote.votos.emitidos", "eleccion", request.idEleccion().toString()).increment(),
-            "vote.votos.emitidos");
-        return votoMapper.toResponse(request.idEleccion(), request.idVotante(), voto);
+        try {
+            validarCargoPerteneceAEleccion(request.idEleccion(), request.idCargo());
+            if (request.tipoVoto() == TipoVoto.VALIDO) {
+                if (request.idCandidato() == null) {
+                    throw httpException(Status.BAD_REQUEST, "Un voto valido requiere un candidato");
+                }
+                validarCandidatoPerteneceACargo(request.idCargo(), request.idCandidato());
+            } else if (request.idCandidato() != null) {
+                throw httpException(Status.BAD_REQUEST, "Un voto blanco o nulo no puede tener candidato");
+            }
+
+            String contenidoVoto = request.tipoVoto() == TipoVoto.VALIDO
+            ? request.tipoVoto().name() + ":" + request.idCandidato()
+            : request.tipoVoto().name();
+            String votoCifrado = aesUtil.cifrar(contenidoVoto);
+            Optional<VotoEntity> ultimo = votoRepository.findUltimoVoto(request.idEleccion());
+            String hashAnterior = ultimo.map(voto -> voto.hashActual).orElse(Sha256ChainUtil.HASH_SEMILLA);
+
+            String hashActual = sha256Util.calcularHash(votoCifrado, hashAnterior);
+            VotoEntity voto = votoMapper.toEntity(request.idEleccion(), request.tipoVoto(), votoCifrado, hashAnterior, hashActual);
+            votoRepository.persist(voto);
+
+            electionClient.marcarVotado(request.idEleccion(), idVotante);
+            pollingStationClient.marcarVotado(request.idEleccion(), authHeader);
+            pollingStationClient.completarVoto(request.idEleccion(), authHeader);
+            try {
+            authClient.logout(authHeader);
+            } catch (Exception ex) {
+                LOGGER.warnf(ex, "No fue posible cerrar la sesión después de registrar el voto");
+            }
+            registrarAuditoriaSegura("VOTO_EMITIDO", "Eleccion " + request.idEleccion() + ", tipo " + request.tipoVoto(), "vote-service");
+
+            registrarMetricaSegura(() -> meterRegistry.counter("vote.votos.emitidos", "eleccion", request.idEleccion().toString()).increment(),
+                "vote.votos.emitidos");
+            return votoMapper.toResponse(request.idEleccion(), voto);
+        } catch (RuntimeException exception) {
+            try {
+                pollingStationClient.liberarReserva(request.idEleccion(), authHeader);
+            } catch (Exception releaseException) {
+                LOGGER.warnf(releaseException, "No fue posible liberar la reserva de voto");
+            }
+            throw exception;
+        }
     }
 
     public boolean verificarIntegridad(Long idEleccion) {

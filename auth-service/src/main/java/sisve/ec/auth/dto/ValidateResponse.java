@@ -7,6 +7,7 @@ public record ValidateResponse(
         String correoInstitucional,
         String nombres,
         String apellidos,
-        Boolean voto
+        Boolean voto,
+        String role
 ) {
 }

@@ -1,8 +1,9 @@
 package sisve.ec.vote.db;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,6 +22,10 @@ public class VotoEntity   {
 
     @Column(name = "id_eleccion", nullable = false)
     public Long idEleccion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_voto", nullable = false, length = 10)
+    public TipoVoto tipoVoto;
 
     @Column(name = "voto_cifrado", nullable = false, columnDefinition = "TEXT")
     public String votoCifrado;

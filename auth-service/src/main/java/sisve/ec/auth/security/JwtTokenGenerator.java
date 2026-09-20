@@ -1,6 +1,7 @@
 package sisve.ec.auth.security;
 
 import sisve.ec.auth.db.VotanteEntity;
+import sisve.ec.auth.db.PollingStationMemberEntity;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -19,7 +20,20 @@ public class JwtTokenGenerator {
         return Jwt.issuer("sisve-auth")
                 .subject(votante.cedula)
                 .claim("idVotante", votante.idVotante)
+                .claim("role", "VOTER")
                 .upn(votante.correoInstitucional)
+                .expiresAt(expiracion)
+                .sign();
+    }
+
+    public String generarToken(PollingStationMemberEntity member) {
+        Instant expiracion = Instant.now().plus(30, ChronoUnit.MINUTES);
+        return Jwt.issuer("sisve-auth")
+                .subject(member.userIdentifier)
+                .claim("role", "POLLING_STATION_MEMBER")
+                .claim("memberId", member.idMiembroMesa)
+                .claim("pollingStationId", member.pollingStationId)
+                .upn(member.institutionalEmail)
                 .expiresAt(expiracion)
                 .sign();
     }

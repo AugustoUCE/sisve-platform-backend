@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public record VotoResponse(
         String mensaje,
         Long idEleccion,
-        Long idVotante,
+        String tipoVoto,
         String hashActual,
         LocalDateTime fechaRegistro
 ) {

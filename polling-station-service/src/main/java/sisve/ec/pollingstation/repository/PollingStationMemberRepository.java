@@ -19,4 +19,8 @@ public class PollingStationMemberRepository implements PanacheRepositoryBase<Pol
                 idPollingStation,
                 sisve.ec.pollingstation.db.PollingStationMemberRole.POLLING_STATION_PRESIDENT).firstResultOptional();
     }
+
+    public Optional<PollingStationMemberEntity> findActiveByUserIdentifier(String userIdentifier) {
+        return find("userIdentifier = ?1 and status = true", userIdentifier).firstResultOptional();
+    }
 }
